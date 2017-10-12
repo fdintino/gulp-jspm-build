@@ -1,10 +1,10 @@
 var buildConfig = require('../lib/buildConfig');
 
 describe('buildConfig', function() {
-    it('should wrap config object in a call to System.config', function() {
+    it('should wrap config object in a call to SystemJS.config', function() {
         var config = { a: 'b' };
         var f = buildConfig( config );
-        expect(f.contents.toString()).toBe('System.config(' + JSON.stringify(config, null, 4) + ');');
+        expect(f.contents.toString()).toBe('SystemJS.config(' + JSON.stringify(config, null, 4) + ');');
     });
     
     it('should create a stably-ordered config file', function() {

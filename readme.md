@@ -30,7 +30,7 @@ gulp.task('jspm', function(){
 ## bundles
 
 An array of bundles to create. Each object in the array specifies the
-arguments to ```systemjs-builder``` in following format.
+arguments to ```jspm.Builder``` in following format.
 
 ### src
 
@@ -48,7 +48,7 @@ arguments to ```systemjs-builder``` in following format.
 
 ### options
 
-```object``` - Arguments to ```systemjs-builder```.
+```object``` - Arguments to ```jspm.Builder```.
 
 ```javascript
 { minify: true, mangle: true }
@@ -62,7 +62,7 @@ bundles.
 Optional, the jspm configuration file to use.
 
 ## configOverride
-Override sections of config.js. This could be useful if you want to change things
+Override sections of jspm.config.js. This could be useful if you want to change things
 like baseURL.
 
 ```javascript

@@ -21,9 +21,11 @@
   },
   "dependencies": {
     "gulp": "^3.9.0",
+    "gulp-util": "^3.0.8",
     "json-stable-stringify": "^1.0.1",
+    "jspm": "^0.17.0-beta.45",
     "lodash": "^3.10.1",
-    "systemjs-builder": "^0.15.14",
+    "systemjs": "^0.20.19",
     "through2": "^2.0.0",
     "vinyl": "^1.0.0"
   },

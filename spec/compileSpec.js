@@ -14,8 +14,14 @@ builder.buildStatic.and.returnValue(Promise.resolve({
 }));
 
 var compile = proxyquire('../lib/compile', {
-    'systemjs-builder': function () {
-        _.assign(this, builder);
+    jspm: {
+        Builder: function() {
+            _.assign(this, builder);
+        }
+    },
+    './logging': {
+        logTree: function() {},
+        logBuild: function() {}
     }
 });
 
