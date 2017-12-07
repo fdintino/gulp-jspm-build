@@ -1,7 +1,7 @@
 {
   "name": "gulp-jspm-builder",
   "version": "0.0.17",
-  "description": "Gulp task to run jspm build.",
+  "description": "Gulp task to run jspm 0.17 build.",
   "main": "index.js",
   "scripts": {
     "test": "npm run jshint && npm run istanbul",
@@ -13,11 +13,11 @@
     "jspm",
     "gulp"
   ],
-  "author": "Buddhike de Silva",
+  "author": "Frankie Dintino",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "http://github.com/buddhike/gulp-jspm-build.git"
+    "url": "https://github.com/fdintino/gulp-jspm-builder"
   },
   "dependencies": {
     "gulp-util": "^3.0.8",

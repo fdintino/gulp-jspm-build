@@ -1,18 +1,21 @@
-gulp-jspm-build
-===
+gulp-jspm-builder
+=================
 
 Gulp task to run jspm build and produce output as a Vinyl stream.
 
-[![Build Status](https://travis-ci.org/buddyspike/gulp-jspm-build.svg?branch=master)](https://travis-ci.org/buddyspike/gulp-jspm-build)
+Based on [gulp-jspm-build](https://github.com/buddyspike/gulp-jspm-build),
+but written to support jspm 0.17, with better logging and error handling.
+
+[![Build Status](https://travis-ci.org/fdintino/gulp-jspm-builder.svg?branch=master)](https://travis-ci.org/fdintino/gulp-jspm-builder)
 
 # Install
 
-```npm install gulp-jspm-build```
+```npm install gulp-jspm-builder```
 
 # Usage
 
 ```javascript
-var jspm = require('gulp-jspm-build');
+var jspm = require('gulp-jspm-builder');
 
 gulp.task('jspm', function(){
     jspm({
@@ -83,7 +86,7 @@ Create a single file executable, including all necessary dependencies and system
 # Example
 
 ```javascript
-var jspm = require('gulp-jspm-build');
+var jspm = require('gulp-jspm-builder');
 
 gulp.task('jspm', function(){
     jspm({        
