@@ -58,7 +58,7 @@ describe('compile', function() {
         {src: 'e', dst: 'f'}
       ]
     }).then((values) => {
-      const {builder} = values;
+      const builder = values.builder;
       expect(builder.bundle).toHaveBeenCalledWith('a', {minify: true});
       expect(builder.bundle).toHaveBeenCalledWith('e', {});
       done();
@@ -69,7 +69,7 @@ describe('compile', function() {
     compile({
       bundles: [{src: 'a', dst: 'b'}]
     }).then((values) => {
-      const {results} = values;
+      const results = values.results;
       const sourceFile = concat(results).find(f => f.path === 'b');
       expect(sourceFile.contents.toString()).toBe('source');
       done();
@@ -91,7 +91,7 @@ describe('options', function() {
       bundles: [{src: 'a', dst: 'b'}],
       bundleSfx: true
     }).then((values) => {
-      const {builder} = values;
+      const builder = values.builder;
       expect(builder.buildStatic).toHaveBeenCalled();
       done();
     }).catch(e => done.fail(e));
@@ -119,7 +119,7 @@ describe('source maps on', function() {
     compile({
       bundles: [{src: 'a', dst: 'b', options: {sourceMaps: true}}]
     }).then((values) => {
-      const {results} = values;
+      const results = values.results;
       const sourceMapFile = concat(results).find(f => f.path === 'b.map');
       expect(sourceMapFile.contents.toString()).toBe('source-map');
       done();
@@ -131,7 +131,7 @@ describe('source maps on', function() {
       bundleOptions: {sourceMaps: true},
       bundles: [{src: 'a', dst: 'b'}]
     }).then((values) => {
-      const {results} = values;
+      const results = values.results;
       const sourceMapFile = concat(results).find(f => f.path === 'b.map');
       expect(sourceMapFile.contents.toString()).toBe('source-map');
       done();
@@ -143,7 +143,7 @@ describe('source maps on', function() {
       bundleOptions: {sourceMaps: true},
       bundles: [{src: 'a', dst: 'b'}]
     }).then((values) => {
-      const {results} = values;
+      const results = values.results;
       const source = concat(results).find((f) => f.path === 'b');
       expect(source.contents.toString()).toBe('source\n//# sourceMappingURL=b.map');
       done();
@@ -156,7 +156,7 @@ describe('source maps off', function() {
     compile({
       bundles: [{src: 'a', dst: 'b'}]
     }).then((values) => {
-      const {results} = values;
+      const results = values.results;
       const hasSourceMapFile = concat(results).some(f => f.path === 'b.map');
       expect(hasSourceMapFile).toBe(false);
       done();
@@ -174,7 +174,7 @@ describe('passing options to system builder', function() {
       bundleOptions: opts,
       bundles: [{src: 'a', dst: 'b'}]
     }).then((values) => {
-      const {builder} = values;
+      const builder = values.builder;
       expect(builder.bundle).toHaveBeenCalledWith('a', opts);
       done();
     }).catch(e => done.fail(e));
@@ -187,7 +187,7 @@ describe('passing options to system builder', function() {
       },
       bundles: [{src: 'a', dst: 'b', options: {minify: true}}]
     }).then((values) => {
-      const {builder} = values;
+      const builder = values.builder;
       expect(builder.bundle).toHaveBeenCalledWith('a', {minify: true});
       done();
     }).catch(e => done.fail(e));
