@@ -1,29 +1,44 @@
 var _ = require('lodash');
 var proxyquire = require('proxyquire');
 
-var builder = jasmine.createSpyObj('bundle', ['config', 'bundle', 'buildStatic']);
-builder.bundle.and.returnValue(Promise.resolve({
-  source: 'source',
-  sourceMap: 'source-map',
-  modules: []
-}));
-builder.buildStatic.and.returnValue(Promise.resolve({
-  source: 'source',
-  sourceMap: 'source-map',
-  modules: []
-}));
 
-var compile = proxyquire('../lib/compile', {
-  jspm: {
-    Builder: function() {
-      _.assign(this, builder);
+function compile(options, mockOpts) {
+  mockOpts = mockOpts || {};
+  var builder = jasmine.createSpyObj('bundle', ['config', 'bundle', 'buildStatic']);
+  builder.bundle.and.returnValue(Promise.resolve({
+    source: 'source',
+    sourceMap: 'source-map',
+    modules: []
+  }));
+  builder.buildStatic.and.returnValue(Promise.resolve({
+    source: 'source',
+    sourceMap: 'source-map',
+    modules: []
+  }));
+
+  var _compile = proxyquire('../lib/compile', {
+    jspm: {
+      Builder: function() {
+        _.assign(this, builder);
+      }
+    },
+    './logging': {
+      logTree: function() {
+        if (mockOpts.triggerException) {
+          throw new Error('this is an expected exception');
+        }
+      },
+      logBuild: function() {}
     }
-  },
-  './logging': {
-    logTree: function() {},
-    logBuild: function() {}
-  }
-});
+  });
+
+  const promise = new Promise((resolve, reject) => {
+    _compile(options).then((results) => {
+      resolve({builder, results});
+    }).catch(e => reject(e));
+  });
+  return promise;
+}
 
 /**
  * Merges an array of arrays into a single array
@@ -40,7 +55,8 @@ describe('compile', function() {
         {src: 'a', dst: 'b', options: {minify: true}},
         {src: 'e', dst: 'f'}
       ]
-    }).then(() => {
+    }).then((values) => {
+      const {builder} = values;
       expect(builder.bundle).toHaveBeenCalledWith('a', {minify: true});
       expect(builder.bundle).toHaveBeenCalledWith('e', {});
       done();
@@ -50,11 +66,20 @@ describe('compile', function() {
   it('should return a vinyl file for bundle', function(done) {
     compile({
       bundles: [{src: 'a', dst: 'b'}]
-    }).then((results) => {
+    }).then((values) => {
+      const {results} = values;
       const sourceFile = concat(results).find(f => f.path === 'b');
       expect(sourceFile.contents.toString()).toBe('source');
       done();
     }).catch(e => done.fail(e));
+  });
+
+  it('should handle a promise exception in the jspm build', function(done) {
+    compile({bundles: [{src: 'a', dst: 'b'}]}, {
+      triggerException: true
+    }).then(() => {
+      done.fail(new Error('did not throw the expected exception'));
+    }).catch(() => done());
   });
 });
 
@@ -63,7 +88,8 @@ describe('options', function() {
     compile({
       bundles: [{src: 'a', dst: 'b'}],
       bundleSfx: true
-    }).then(() => {
+    }).then((values) => {
+      const {builder} = values;
       expect(builder.buildStatic).toHaveBeenCalled();
       done();
     }).catch(e => done.fail(e));
@@ -90,7 +116,8 @@ describe('source maps on', function() {
   it('should generate when bundle level option is on', function(done) {
     compile({
       bundles: [{src: 'a', dst: 'b', options: {sourceMaps: true}}]
-    }).then((results) => {
+    }).then((values) => {
+      const {results} = values;
       const sourceMapFile = concat(results).find(f => f.path === 'b.map');
       expect(sourceMapFile.contents.toString()).toBe('source-map');
       done();
@@ -101,7 +128,8 @@ describe('source maps on', function() {
     compile({
       bundleOptions: {sourceMaps: true},
       bundles: [{src: 'a', dst: 'b'}]
-    }).then((results) => {
+    }).then((values) => {
+      const {results} = values;
       const sourceMapFile = concat(results).find(f => f.path === 'b.map');
       expect(sourceMapFile.contents.toString()).toBe('source-map');
       done();
@@ -112,7 +140,8 @@ describe('source maps on', function() {
     compile({
       bundleOptions: {sourceMaps: true},
       bundles: [{src: 'a', dst: 'b'}]
-    }).then((results) => {
+    }).then((values) => {
+      const {results} = values;
       const source = concat(results).find((f) => f.path === 'b');
       expect(source.contents.toString()).toBe('source\n//# sourceMappingURL=b.map');
       done();
@@ -124,7 +153,8 @@ describe('source maps off', function() {
   it('should not generate the maps file', function(done) {
     compile({
       bundles: [{src: 'a', dst: 'b'}]
-    }).then((results) => {
+    }).then((values) => {
+      const {results} = values;
       const hasSourceMapFile = concat(results).some(f => f.path === 'b.map');
       expect(hasSourceMapFile).toBe(false);
       done();
@@ -141,7 +171,8 @@ describe('passing options to system builder', function() {
     compile({
       bundleOptions: opts,
       bundles: [{src: 'a', dst: 'b'}]
-    }).then(() => {
+    }).then((values) => {
+      const {builder} = values;
       expect(builder.bundle).toHaveBeenCalledWith('a', opts);
       done();
     }).catch(e => done.fail(e));
@@ -153,7 +184,8 @@ describe('passing options to system builder', function() {
         minify: false
       },
       bundles: [{src: 'a', dst: 'b', options: {minify: true}}]
-    }).then(() => {
+    }).then((values) => {
+      const {builder} = values;
       expect(builder.bundle).toHaveBeenCalledWith('a', {minify: true});
       done();
     }).catch(e => done.fail(e));
