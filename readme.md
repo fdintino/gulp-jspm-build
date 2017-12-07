@@ -71,7 +71,7 @@ configOverride: {
 }
 ```
 
-## baseUrl
+## baseURL
 The jspm base URL, as normally specified in your ```package.json``` under ```config.jspm.directories.baseURL```. Defaults to ```'.'```.
 
 ## bundleSfx

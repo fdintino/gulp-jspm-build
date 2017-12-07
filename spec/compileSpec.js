@@ -25,170 +25,137 @@ var compile = proxyquire('../lib/compile', {
     }
 });
 
+/**
+ * Merges an array of arrays into a single array
+ */
+function concat(arrays) {
+    return Array.prototype.concat.apply([], arrays);
+}
+
 describe('compile', function() {
     it('should invoke builder for each bundle', function(done) {
         compile({
-            config: { },
+            config: {},
             bundles: [
-                { src: 'a', dst: 'b', options: { minify: true } },
-                { src: 'e', dst: 'f'}
-            ]}
-        )
-        .then(function() {
-            expect(builder.bundle).toHaveBeenCalledWith('a', { minify: true });
+                {src: 'a', dst: 'b', options: {minify: true}},
+                {src: 'e', dst: 'f'}
+            ]
+        }).then(() => {
+            expect(builder.bundle).toHaveBeenCalledWith('a', {minify: true});
             expect(builder.bundle).toHaveBeenCalledWith('e', {});
             done();
-        });
-    });
-
-    it('should return config with bundles', function(done) {
-        var config = {};
-        compile({
-            config: config,
-            bundles: [ { src: 'a', dst: 'b' }]
-        })
-        .then(function(result) {
-            expect(result.config.bundles).toEqual( { b: [] });
-            done();
-        });
+        }).catch(e => done.fail(e));
     });
 
     it('should return a vinyl file for bundle', function(done) {
         compile({
-            bundles: [ { src: 'a', dst: 'b' }]
-        })
-        .then(function(result){
-            var sourceFile = _.find(result.files, function(f) {
-                return f.path === 'b';
-            });
-
+            bundles: [{src: 'a', dst: 'b'}]
+        }).then((results) => {
+            const sourceFile = concat(results).find(f => f.path === 'b');
             expect(sourceFile.contents.toString()).toBe('source');
             done();
-        })
-        .catch(function(e) {
-            done.fail(e);
-        });
+        }).catch(e => done.fail(e));
     });
 });
 
 describe('options', function() {
     it('should call buildStatic when the bundleSfx option is specified', function(done) {
         compile({
-            bundles: [ { src: 'a', dst: 'b' } ],
+            bundles: [{src: 'a', dst: 'b'}],
             bundleSfx: true
-        })
-        .then(function() {
+        }).then(() => {
             expect(builder.buildStatic).toHaveBeenCalled();
             done();
-        });
+        }).catch(e => done.fail(e));
+    });
+
+    it('should fail if bundle dst not passed', function(done) {
+        compile({
+            bundles: [{src: 'a'}]
+        }).then(() => {
+            done.fail(new Error('compile did not fail'));
+        }).catch(() => done());
+    });
+
+    it('should fail if bundle src not passed', function(done) {
+        compile({
+            bundles: [{dst: 'b'}]
+        }).then(() => {
+            done.fail(new Error('compile did not fail'));
+        }).catch(() => done());
     });
 });
 
 describe('source maps on', function() {
     it('should generate when bundle level option is on', function(done) {
         compile({
-            bundles: [ { src: 'a', dst: 'b', options: { sourceMaps: true } } ]
-        })
-        .then(function(result){
-            var sourceMapFile = _.find(result.files, function(f) {
-                return f.path === 'b.map';
-            });
-
+            bundles: [{src: 'a', dst: 'b', options: {sourceMaps: true}}]
+        }).then((results) => {
+            const sourceMapFile = concat(results).find(f => f.path === 'b.map');
             expect(sourceMapFile.contents.toString()).toBe('source-map');
             done();
-        })
-        .catch(function(e) {
-            done.fail(e);
-        });
+        }).catch(e => done.fail(e));
     });
 
     it('should generate when global option is on', function(done) {
         compile({
-            bundleOptions: { sourceMaps: true },
-            bundles: [ { src: 'a', dst: 'b' } ]
-        })
-        .then(function(result){
-            var sourceMapFile = _.find(result.files, function(f) {
-                return f.path === 'b.map';
-            });
-
+            bundleOptions: {sourceMaps: true},
+            bundles: [{src: 'a', dst: 'b'}]
+        }).then((results) => {
+            const sourceMapFile = concat(results).find(f => f.path === 'b.map');
             expect(sourceMapFile.contents.toString()).toBe('source-map');
             done();
-        })
-        .catch(function(e) {
-            done.fail(e);
-        });
+        }).catch(e => done.fail(e));
     });
 
     it('should append source maps location to the end of source file', function(done) {
         compile({
-            bundleOptions: { sourceMaps: true },
-            bundles: [ { src: 'a', dst: 'b' } ]
-        })
-        .then(function(result) {
-            var source = _.find(result.files, function(f) {
-                return f.path === 'b';
-            });
-
-            var content = source.contents.toString();
-            expect(content).toBe('source\n//# sourceMappingURL=b.map');
+            bundleOptions: {sourceMaps: true},
+            bundles: [{src: 'a', dst: 'b'}]
+        }).then((results) => {
+            const source = concat(results).find((f) => f.path === 'b');
+            expect(source.contents.toString()).toBe('source\n//# sourceMappingURL=b.map');
             done();
-        })
-        .catch(function(e) {
-            done.fail(e);
-        });
+        }).catch(e => done.fail(e));
     });
 });
 
 describe('source maps off', function() {
     it('should not generate the maps file', function(done) {
         compile({
-            bundles: [ { src: 'a', dst: 'b' } ]
-        })
-        .then(function(result){
-            var sourceMapFile = _.any(result.files, function(f) {
-                return f.path === 'b.map';
-            });
-
-            expect(sourceMapFile).toBe(false);
+            bundles: [{src: 'a', dst: 'b'}]
+        }).then((results) => {
+            const hasSourceMapFile = concat(results).some(f => f.path === 'b.map');
+            expect(hasSourceMapFile).toBe(false);
             done();
-        })
-        .catch(function(e) {
-            done.fail(e);
-        });
+        }).catch(e => done.fail(e));
     });
 });
 
 describe('passing options to system builder', function() {
     it('should pass the global options specified', function(done) {
-        var opts = {
+        const opts = {
             minify: true
         };
 
         compile({
             bundleOptions: opts,
-            bundles: [ { src: 'a', dst: 'b' }]
-        })
-        .then(function() {
+            bundles: [{src: 'a', dst: 'b'}]
+        }).then(() => {
             expect(builder.bundle).toHaveBeenCalledWith('a', opts);
             done();
-        });
+        }).catch(e => done.fail(e));
     });
 
     it('should pass the overrides specified for each bundle', function(done) {
-        var opts = {
-            minify: true
-        };
-
         compile({
             bundleOptions: {
                 minify: false
             },
-            bundles: [ { src: 'a', dst: 'b', options: opts }]
-        })
-        .then(function() {
-            expect(builder.bundle).toHaveBeenCalledWith('a', opts);
+            bundles: [{src: 'a', dst: 'b', options: {minify: true}}]
+        }).then(() => {
+            expect(builder.bundle).toHaveBeenCalledWith('a', {minify: true});
             done();
-        });
+        }).catch(e => done.fail(e));
     });
 });
