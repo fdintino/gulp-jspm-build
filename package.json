@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npm run jshint && npm run istanbul",
     "jasmine": "jasmine",
-    "istanbul": "istanbul cover --include-all-sources jasmine",
+    "istanbul": "istanbul cover jasmine",
     "jshint": "jshint index.js spec"
   },
   "keywords": [
@@ -22,13 +22,13 @@
   "dependencies": {
     "gulp-util": "^3.0.8",
     "jspm": "^0.17.0-beta.45",
-    "lodash": "^3.10.1",
-    "through2": "^2.0.0",
+    "lodash": "^4.17.4",
+    "through2": "^2.0.3",
     "vinyl": "^1.0.0"
   },
   "devDependencies": {
-    "istanbul": "^0.3.21",
-    "jasmine": "^2.3.2",
+    "istanbul": "^0.4.5",
+    "jasmine": "^2.8.0",
     "jshint": "^2.8.0",
     "proxyquire": "^1.7.2"
   }
