@@ -9,7 +9,7 @@ const through = require('through2');
 const proxyquire = require('proxyquire').noPreserveCache();
 const chai = require('chai');
 const expect = chai.expect;
-const gutil = require('gulp-util');
+const gulplog = require('gulplog');
 
 const helpers = require('./helpers');
 
@@ -31,8 +31,7 @@ describe('build integration', function() {
       jspm = jspmConfigRefresh();
       jspm.setPackagePath(dir);
       sinon.spy(jspm, 'install');
-      sinon.stub(gutil, 'log').callsFake(function() {});
-      // logging.log('ok', 'test');
+      sinon.stub(gulplog, 'info').callsFake(function() {});
       build = proxyquire('../lib/build', {
         jspm: jspm,
         through2: {
@@ -53,7 +52,7 @@ describe('build integration', function() {
     }
     process.chdir(cwd);
     jspm.install.restore();
-    gutil.log.restore();
+    gulplog.info.restore();
   });
 
   it('should build a simple package', function(done) {
@@ -141,7 +140,7 @@ describe('build integration', function() {
       install: 'force',
       installOptions: {summary: true}
     }).on('finish', function() {
-      expect(gutil.log).to.have.been.called;
+      expect(gulplog.info).to.have.been.called;
       done();
     });
   });

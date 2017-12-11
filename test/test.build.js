@@ -42,6 +42,7 @@ function callBuild(options) {
     }
 
     const jspmProxy = {
+      on: function() {},
       install: function() {
         return Promise.resolve(true);
       },

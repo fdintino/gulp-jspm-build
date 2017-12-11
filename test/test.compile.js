@@ -35,9 +35,9 @@ function compile(options, mockOpts) {
 
   var _compile = proxyquire('../lib/compile', {
     jspm: {
+      on: function() {},
       Builder: function() {
         _.assign(this, builder);
-        // return builder;
       }
     },
     './logging': {
