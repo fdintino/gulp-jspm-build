@@ -8,7 +8,8 @@ describe('jspm config refresh', function() {
 
   beforeEach((done) => {
     Promise.all([utils.jspmTemp(), utils.jspmTemp()]).then((values) => {
-      [dir1, dir2] = values;
+      dir1 = values[0];
+      dir2 = values[1];
       done();
     }).catch(e => done(e));
   });
