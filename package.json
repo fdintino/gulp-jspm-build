@@ -1,7 +1,7 @@
 {
   "name": "gulp-jspm-builder",
   "version": "0.0.17",
-  "description": "Gulp task to run jspm 0.17 build.",
+  "description": "Gulp task to run jspm 0.17 build and install",
   "main": "index.js",
   "scripts": {
     "test": "npm run eslint && npm run istanbul",
