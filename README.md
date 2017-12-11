@@ -77,7 +77,7 @@ Options passed to `jspm.install()`. Pass `{summary: true}` to generate log outpu
 ## baseURL
 The jspm base URL, as normally specified in your ```package.json``` under ```config.jspm.directories.baseURL```. Defaults to ```'.'```.
 
-## bundleSfx
+## sfx
 Create a single file executable, including all necessary dependencies and systemjs. Defaults to ```false```.
 
 > See the [jspm documentation](https://github.com/jspm/jspm-cli/blob/master/docs/production-workflows.md#creating-a-self-executing-bundle)
