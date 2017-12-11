@@ -49,6 +49,13 @@ arguments to ```jspm.Builder``` in following format.
 
 ```string``` - Bundled file name.
 
+### sfx
+
+Create a single file executable, including all necessary dependencies and systemjs. Defaults to ```false```.
+
+> See the [jspm documentation](https://github.com/jspm/jspm-cli/blob/master/docs/production-workflows.md#creating-a-self-executing-bundle)
+  for more information.
+
 ### options
 
 ```object``` - Arguments to ```jspm.Builder```.
@@ -80,12 +87,6 @@ The jspm base URL, as normally specified in your ```package.json``` under ```con
 ## config
 Optional, an object passed to SystemJS.config() to override SystemJS settings.
 
-## sfx
-Create a single file executable, including all necessary dependencies and systemjs. Defaults to ```false```.
-
-> See the [jspm documentation](https://github.com/jspm/jspm-cli/blob/master/docs/production-workflows.md#creating-a-self-executing-bundle)
-  for more information.
-
 # Example
 
 ```javascript
@@ -98,7 +99,7 @@ gulp.task('jspm', function(){
             mangle: true
         },
         bundles: [
-            { src: 'app', dst: 'app.js' }
+            { src: 'app', dst: 'app.js', sfx: true }
             {
                 src: 'react + react-router',
                 dst: 'lib.js',

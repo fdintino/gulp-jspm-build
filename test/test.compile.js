@@ -107,8 +107,7 @@ describe('compile', function() {
 describe('options', function() {
   it('should call buildStatic when the sfx option is specified', function(done) {
     compile({
-      bundles: [{src: 'a', dst: 'b'}],
-      sfx: true
+      bundles: [{src: 'a', dst: 'b', sfx: true}]
     }).then((values) => {
       const builder = values.builder;
       expect(builder.buildStatic).to.have.been.calledOnce;
