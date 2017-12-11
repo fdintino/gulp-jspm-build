@@ -77,6 +77,9 @@ Options passed to `jspm.install()`. Pass `{summary: true}` to generate log outpu
 ## baseURL
 The jspm base URL, as normally specified in your ```package.json``` under ```config.jspm.directories.baseURL```. Defaults to ```'.'```.
 
+## config
+Optional, an object passed to SystemJS.config() to override SystemJS settings.
+
 ## sfx
 Create a single file executable, including all necessary dependencies and systemjs. Defaults to ```false```.
 
