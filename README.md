@@ -61,18 +61,18 @@ arguments to ```jspm.Builder``` in following format.
 Same as ```options``` for individual bundle but specifies common options for all
 bundles.
 
-## config
-Optional, the jspm configuration file to use.
+## packagePath
+Optional, the path to the package.json being used.
 
-## configOverride
-Override sections of jspm.config.js. This could be useful if you want to change things
-like baseURL.
+## install
+Can be one of:
 
-```javascript
-configOverride: {
-    baseURL: '/foo'
-}
-```
+- `false` (default): do not run `jspm install`
+- `true` / `'auto'`: run `jspm install` if package.json or config files have changed since last install
+- `force`: always run `jspm install`
+
+## installOptions
+Options passed to `jspm.install()`. Pass `{summary: true}` to generate log output for the install.
 
 ## baseURL
 The jspm base URL, as normally specified in your ```package.json``` under ```config.jspm.directories.baseURL```. Defaults to ```'.'```.
@@ -93,7 +93,7 @@ gulp.task('jspm', function(){
         bundleOptions: {
             minify: true,
             mangle: true
-        }
+        },
         bundles: [
             { src: 'app', dst: 'app.js' }
             {
@@ -102,8 +102,9 @@ gulp.task('jspm', function(){
                 options: { mangle: false }
             }
         ],
-        configOverride: {
-            baseURL: '/foo'
+        install: true,
+        installOptions: {
+            summary: true
         }
     })
     .pipe(gulp.dest('.dist'));

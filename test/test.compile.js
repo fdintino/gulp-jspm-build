@@ -1,27 +1,43 @@
 'use strict';
 
-var _ = require('lodash');
-var proxyquire = require('proxyquire');
+const _ = require('lodash');
+const proxyquire = require('proxyquire').noPreserveCache();
+const chai = require('chai');
+const sinon = require('sinon');
+const expect = chai.expect;
+
+const helpers = require('./helpers');
+
+chai.use(helpers);
+
+function Builder() {
+  this.config = () => {};
+  this.bundle = () => Promise.resolve({
+    source: 'source',
+    sourceMap: 'source-map',
+    modules: []
+  });
+  this.buildStatic = () => Promise.resolve({
+    source: 'source',
+    sourceMap: 'source-map',
+    modules: []
+  });
+  sinon.spy(this, 'config');
+  sinon.spy(this, 'bundle');
+  sinon.spy(this, 'buildStatic');
+}
 
 
 function compile(options, mockOpts) {
   mockOpts = mockOpts || {};
-  var builder = jasmine.createSpyObj('bundle', ['config', 'bundle', 'buildStatic']);
-  builder.bundle.and.returnValue(Promise.resolve({
-    source: 'source',
-    sourceMap: 'source-map',
-    modules: []
-  }));
-  builder.buildStatic.and.returnValue(Promise.resolve({
-    source: 'source',
-    sourceMap: 'source-map',
-    modules: []
-  }));
+
+  const builder = new Builder();
 
   var _compile = proxyquire('../lib/compile', {
     jspm: {
       Builder: function() {
         _.assign(this, builder);
+        // return builder;
       }
     },
     './logging': {
@@ -59,10 +75,10 @@ describe('compile', function() {
       ]
     }).then((values) => {
       const builder = values.builder;
-      expect(builder.bundle).toHaveBeenCalledWith('a', {minify: true});
-      expect(builder.bundle).toHaveBeenCalledWith('e', {});
+      expect(builder.bundle).to.have.been.calledWith('a', {minify: true});
+      expect(builder.bundle).to.have.been.calledWith('e', {});
       done();
-    }).catch(e => done.fail(e));
+    }).catch(e => done(e));
   });
 
   it('should return a vinyl file for bundle', function(done) {
@@ -71,16 +87,19 @@ describe('compile', function() {
     }).then((values) => {
       const results = values.results;
       const sourceFile = concat(results).find(f => f.path === 'b');
-      expect(sourceFile.contents.toString()).toBe('source');
+      expect(sourceFile.contents.toString()).to.equal('source');
       done();
-    }).catch(e => done.fail(e));
+    }).catch(e => done(e));
   });
 
   it('should handle a promise exception in the jspm build', function(done) {
-    compile({bundles: [{src: 'a', dst: 'b'}]}, {
+    compile({
+      bundles: [{src: 'a', dst: 'b'}],
+      bundleOptions: {summary: true}
+    }, {
       triggerException: true
     }).then(() => {
-      done.fail(new Error('did not throw the expected exception'));
+      done(new Error('did not throw the expected exception'));
     }).catch(() => done());
   });
 });
@@ -92,16 +111,16 @@ describe('options', function() {
       bundleSfx: true
     }).then((values) => {
       const builder = values.builder;
-      expect(builder.buildStatic).toHaveBeenCalled();
+      expect(builder.buildStatic).to.have.been.calledOnce;
       done();
-    }).catch(e => done.fail(e));
+    }).catch(e => done(e));
   });
 
   it('should fail if bundle dst not passed', function(done) {
     compile({
       bundles: [{src: 'a'}]
     }).then(() => {
-      done.fail(new Error('compile did not fail'));
+      done(new Error('compile did not fail'));
     }).catch(() => done());
   });
 
@@ -109,7 +128,7 @@ describe('options', function() {
     compile({
       bundles: [{dst: 'b'}]
     }).then(() => {
-      done.fail(new Error('compile did not fail'));
+      done(new Error('compile did not fail'));
     }).catch(() => done());
   });
 });
@@ -121,9 +140,9 @@ describe('source maps on', function() {
     }).then((values) => {
       const results = values.results;
       const sourceMapFile = concat(results).find(f => f.path === 'b.map');
-      expect(sourceMapFile.contents.toString()).toBe('source-map');
+      expect(sourceMapFile.contents.toString()).to.equal('source-map');
       done();
-    }).catch(e => done.fail(e));
+    }).catch(e => done(e));
   });
 
   it('should generate when global option is on', function(done) {
@@ -133,9 +152,9 @@ describe('source maps on', function() {
     }).then((values) => {
       const results = values.results;
       const sourceMapFile = concat(results).find(f => f.path === 'b.map');
-      expect(sourceMapFile.contents.toString()).toBe('source-map');
+      expect(sourceMapFile.contents.toString()).to.equal('source-map');
       done();
-    }).catch(e => done.fail(e));
+    }).catch(e => done(e));
   });
 
   it('should append source maps location to the end of source file', function(done) {
@@ -145,9 +164,9 @@ describe('source maps on', function() {
     }).then((values) => {
       const results = values.results;
       const source = concat(results).find((f) => f.path === 'b');
-      expect(source.contents.toString()).toBe('source\n//# sourceMappingURL=b.map');
+      expect(source.contents.toString()).to.equal('source\n//# sourceMappingURL=b.map');
       done();
-    }).catch(e => done.fail(e));
+    }).catch(e => done(e));
   });
 });
 
@@ -158,9 +177,9 @@ describe('source maps off', function() {
     }).then((values) => {
       const results = values.results;
       const hasSourceMapFile = concat(results).some(f => f.path === 'b.map');
-      expect(hasSourceMapFile).toBe(false);
+      expect(hasSourceMapFile).to.equal(false);
       done();
-    }).catch(e => done.fail(e));
+    }).catch(e => done(e));
   });
 });
 
@@ -175,9 +194,9 @@ describe('passing options to system builder', function() {
       bundles: [{src: 'a', dst: 'b'}]
     }).then((values) => {
       const builder = values.builder;
-      expect(builder.bundle).toHaveBeenCalledWith('a', opts);
+      expect(builder.bundle).to.have.been.calledWith('a', opts);
       done();
-    }).catch(e => done.fail(e));
+    }).catch(e => done(e));
   });
 
   it('should pass the overrides specified for each bundle', function(done) {
@@ -188,8 +207,8 @@ describe('passing options to system builder', function() {
       bundles: [{src: 'a', dst: 'b', options: {minify: true}}]
     }).then((values) => {
       const builder = values.builder;
-      expect(builder.bundle).toHaveBeenCalledWith('a', {minify: true});
+      expect(builder.bundle).to.have.been.calledWith('a', {minify: true});
       done();
-    }).catch(e => done.fail(e));
+    }).catch(e => done(e));
   });
 });
