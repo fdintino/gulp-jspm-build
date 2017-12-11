@@ -65,6 +65,7 @@ describe('build integration', function() {
   });
 
   it('should allow installing and bundling an npm dependency', function(done) {
+    this.timeout(5000);
     build({
       packagePath: dir,
       bundles: [{src: 'test-app-repeat-string', dst: path.join(dir, 'dist')}],
