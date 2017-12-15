@@ -2,14 +2,19 @@
 SystemJS.config({
   paths: {
     "npm:": "jspm_packages/npm/",
-    "test-app-42/": "src/test-app-42/",
+    "a/": "src/a/",
+    "foobar/": "src/foobar/",
     "test-app-repeat-string/": "src/test-app-repeat-string/"
   },
   transpiler: "none",
   packages: {
-    "test-app-42": {
+    "a": {
       "main": "index.js",
-      "format": "cjs"
+      "format": "esm"
+    },
+    "foobar": {
+      "main": "index.js",
+      "format": "esm"
     },
     "test-app-repeat-string": {
       "main": "index.js",

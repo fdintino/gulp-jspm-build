@@ -1,24 +1,23 @@
-gulp-jspm-builder
-=================
+# gulp-jspm-builder [![Build Status](https://travis-ci.org/fdintino/gulp-jspm-builder.svg?branch=master)](https://travis-ci.org/fdintino/gulp-jspm-builder)
 
 Gulp task to run jspm build and produce output as a Vinyl stream.
 
-Based on [gulp-jspm-build](https://github.com/buddyspike/gulp-jspm-build),
-but written to support jspm 0.17, with better logging and error handling.
+Based on [gulp-jspm-build](https://github.com/buddyspike/gulp-jspm-build), but written to support jspm 0.17, with better logging, error handling, and sourcemap support, as well as the ability to run `jspm install` as part of the gulp task.
 
-[![Build Status](https://travis-ci.org/fdintino/gulp-jspm-builder.svg?branch=master)](https://travis-ci.org/fdintino/gulp-jspm-builder)
 
-# Install
+## Install
 
-```npm install gulp-jspm-builder```
+```
+npm install --save-dev gulp-jspm-builder
+```
 
-# Usage
+## Usage
 
 ```javascript
-var jspm = require('gulp-jspm-builder');
+var jspmBuilder = require('gulp-jspm-builder');
 
 gulp.task('jspm', function(){
-    jspm({
+    jspmBuilder({
         bundles: [
             { src: 'app', dst: 'app.js' }
         ]
@@ -28,16 +27,34 @@ gulp.task('jspm', function(){
 
 ```
 
-# Options
+## API: jspmBuilder([options])
 
-## bundles
+### install
 
-An array of bundles to create. Each object in the array specifies the
-arguments to ```jspm.Builder``` in following format.
+Type: `boolean` or `string`<br>
+Default: `false`
 
-### src
+ - **`false`**: do not run `jspm install`
+ - **`true`** / **`'auto'`**: only run `jspm install` if package.json or config files have changed since an install was last run.
+ - **`'force'`**: always run `jspm install`
 
-```string``` - Modules to bundle. You can use jspm arithmetic expressions here.
+### installOptions
+
+Type: `object`
+
+Options passed to `jspm.install()`. Pass `{summary: true}` to generate log output for the install.
+
+### bundles
+
+Type: `Array`
+
+An array of bundles to create. Each object is a jspm bundle created with `jspm.Builder`, according to the following format.
+
+#### src
+
+Type: `string`
+
+Modules to bundle. You can use jspm arithmetic expressions here.
 
 ```javascript
 'app'
@@ -45,55 +62,71 @@ arguments to ```jspm.Builder``` in following format.
 'app - react'
 ```
 
-### dst
+#### dst
 
-```string``` - Bundled file name.
+Type: `string`
 
-### sfx
+Output filename for the bundle. The eventually created file will be at this path, relative to the directory passed into `gulp.dest()`.
 
-Create a single file executable, including all necessary dependencies and systemjs. Defaults to ```false```.
+#### sfx
 
-> See the [jspm documentation](https://github.com/jspm/jspm-cli/blob/master/docs/production-workflows.md#creating-a-self-executing-bundle)
-  for more information.
+Type: `string`<br>
+Default: `false`
 
-### options
+Create a single file executable, including all necessary dependencies and systemjs.
 
-```object``` - Arguments to ```jspm.Builder```.
+See the [jspm documentation](https://github.com/jspm/jspm-cli/blob/master/docs/production-workflows.md#creating-a-self-executing-bundle) for more information.
+
+#### options
+
+Type: `object`
+
+The options argument passed to `jspm.Builder.buildStatic` or `jspm.Builder.bundle` (depending on whether `sfx` is `true` or `false`, respectively).
 
 ```javascript
-{ minify: true, mangle: true }
+{
+  minify: true,
+  mangle: true,
+  sourceMaps: true,
+  format: 'global',
+  globalName: 'myGlobal'
+}
 ```
 
-## bundleOptions
-Same as ```options``` for individual bundle but specifies common options for all
-bundles.
-
-## packagePath
-Optional, the path to the package.json being used.
-
-## install
-Can be one of:
-
-- `false` (default): do not run `jspm install`
-- `true` / `'auto'`: run `jspm install` if package.json or config files have changed since last install
-- `force`: always run `jspm install`
-
-## installOptions
-Options passed to `jspm.install()`. Pass `{summary: true}` to generate log output for the install.
-
-## baseURL
-The jspm base URL, as normally specified in your ```package.json``` under ```config.jspm.directories.baseURL```. Defaults to ```'.'```.
-
-## config
-Optional, an object passed to SystemJS.config() to override SystemJS settings.
-
-# Example
+**Note!** For sourcemaps files to be created, it is also necessary to pipe the stream returned from `jspmBuilder()` to [gulp-sourcemaps](https://github.com/gulp-sourcemaps/gulp-sourcemaps)'s `write()` function:
 
 ```javascript
-var jspm = require('gulp-jspm-builder');
+const sourcemaps = require('gulp-sourcemaps');
+
+jspmBuilder({bundles: [{src: 'pkg', dst: 'pkg.js', sourceMaps: true}]})
+  .pipe(sourcemaps.write('.'))
+  .pipe(gulp.dest('dist'));
+
+```
+
+### bundleOptions
+
+Same as `bundle.options`, but applies to all bundles.
+
+### packagePath
+
+Type: `string`
+
+Optional, the path where the `package.json` containing the jspm config lives. For the common case this should be omitted.
+
+### baseURL
+The jspm base URL, as normally specified in your `package.json` under `config.jspm.directories.baseURL`. Defaults to `'.'`.
+
+### config
+Optional, an object passed to SystemJS.config() to override SystemJS settings.
+
+## Example
+
+```javascript
+var jspmBuilder = require('gulp-jspm-builder');
 
 gulp.task('jspm', function(){
-    jspm({        
+    jspmBuilder({        
         bundleOptions: {
             minify: true,
             mangle: true
