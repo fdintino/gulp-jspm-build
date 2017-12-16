@@ -82,9 +82,7 @@ describe('compile', function() {
       done(new Error('did not throw the expected exception'));
     }).catch(() => done());
   });
-});
 
-describe('options', function() {
   it('should call buildStatic when the sfx option is specified', function(done) {
     compile({
       bundles: [{src: 'a', dst: 'a.js', sfx: true}]
@@ -110,9 +108,7 @@ describe('options', function() {
       done(new Error('compile did not fail'));
     }).catch(() => done());
   });
-});
 
-describe('source maps', function() {
   it('should be generated when options.sourceMaps on bundle is true', function(done) {
     compile({
       bundles: [{src: 'a', dst: 'a.js', options: {sourceMaps: true}}]
@@ -132,21 +128,7 @@ describe('source maps', function() {
     }).catch(e => done(e));
   });
 
-  // it('should append source maps location to the end of source file', function(done) {
-  //   compile({
-  //     bundleOptions: {sourceMaps: true},
-  //     bundles: [{src: 'a', dst: 'b'}]
-  //   }).then((results) => {
-  //     const results = results.results;
-  //     const source = concat(results).find((f) => f.path === 'b');
-  //     expect(source.contents.toString()).to.equal('source\n//# sourceMappingURL=b.map');
-  //     done();
-  //   }).catch(e => done(e));
-  // });
-});
-
-describe('source maps off', function() {
-  it('should not generate the maps file', function(done) {
+  it('should not generate sourcemaps if not requested', function(done) {
     compile({
       bundles: [{src: 'a', dst: 'b'}]
     }).then((results) => {
@@ -154,10 +136,8 @@ describe('source maps off', function() {
       done();
     }).catch(e => done(e));
   });
-});
 
-describe('passing options to system builder', function() {
-  it('should pass the global options specified', function(done) {
+  it('should pass bundleOptions to each bundle', function(done) {
     const opts = {minify: true};
 
     compile({
