@@ -16,6 +16,6 @@ module.exports = {
     "semi": [2, "always"]
   },
   "globals": {
-
+    "SystemJS": false
   }
 };
