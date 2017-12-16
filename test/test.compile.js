@@ -47,6 +47,11 @@ function compile(options, mockOpts) {
 }
 
 describe('compile', function() {
+  const defaultOpts = {
+    cwd: process.cwd(),
+    cwdbase: false,
+  };
+
   it('should invoke builder for each bundle', function(done) {
     compile({
       config: {},
@@ -56,8 +61,9 @@ describe('compile', function() {
       ]
     }).then((results) => {
       const builder = results.builder;
-      expect(builder.bundle).to.have.been.calledWith('a', {minify: true});
-      expect(builder.bundle).to.have.been.calledWith('foobar', {});
+      expect(builder.bundle).to.have.been.calledWith(
+        'a', Object.assign({}, defaultOpts, {minify: true}));
+      expect(builder.bundle).to.have.been.calledWith('foobar', defaultOpts);
       done();
     }).catch(e => done(e));
   });
@@ -144,7 +150,8 @@ describe('compile', function() {
       bundleOptions: opts,
       bundles: [{src: 'a', dst: 'a.js'}]
     }).then((results) => {
-      expect(results.builder.bundle).to.have.been.calledWith('a', opts);
+      expect(results.builder.bundle).to.have.been.calledWith(
+        'a', Object.assign({}, defaultOpts, opts));
       done();
     }).catch(e => done(e));
   });
@@ -156,7 +163,8 @@ describe('compile', function() {
       },
       bundles: [{src: 'a', dst: 'b', options: {minify: true}}]
     }).then((results) => {
-      expect(results.builder.bundle).to.have.been.calledWith('a', {minify: true});
+      expect(results.builder.bundle).to.have.been.calledWith(
+        'a', Object.assign({}, defaultOpts, {minify: true}));
       done();
     }).catch(e => done(e));
   });

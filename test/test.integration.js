@@ -167,14 +167,17 @@ describe('gulp plugin', function() {
   });
 
   it('should save sourcemaps when piped to gulp-sourcemaps write', function(done) {
-    build({bundles: [{src: 'foobar', dst: 'foobar.js', options: {sourceMaps: true}}]})
+    build({bundles: [{src: 'foobar', dst: 'dist/foobar.js', options: {sourceMaps: true}}]})
       .pipe(gulpSourcemaps.write('.'))
-      .pipe(gulp.dest('dist'))
+      .pipe(gulp.dest(path.resolve('.')))
       .on('finish', function() {
+        const sourceMapPath = path.join(dir, 'dist/foobar.js.map');
         expect(
-          fs.existsSync(path.join(dir, 'dist/foobar.js.map')),
-          'dist/foobar.js.map exists'
+          fs.existsSync(sourceMapPath), 'dist/foobar.js.map exists'
         ).to.be.true;
+
+        const sourcemap = JSON.parse(fs.readFileSync(sourceMapPath));
+        expect(sourcemap.sources[0]).to.equal('../src/foobar/index.js');
         done();
       });
   });

@@ -98,10 +98,13 @@ The options argument passed to `jspm.Builder.buildStatic` or `jspm.Builder.bundl
 ```javascript
 const sourcemaps = require('gulp-sourcemaps');
 
-jspmBuilder({bundles: [{src: 'pkg', dst: 'pkg.js', sourceMaps: true}]})
+// Because of a long-standing bug in gulp-sourcemaps, it is necessary to either
+// include the destination directory in bundles.dst (and call gulp.dest() with
+// '.') or to pass the sourceRoot option to sourcemaps.write() in order for
+// the relative paths of sources to be correct.
+jspmBuilder({bundles: [{src: 'pkg', dst: 'dist/pkg.js', sourceMaps: true}]})
   .pipe(sourcemaps.write('.'))
-  .pipe(gulp.dest('dist'));
-
+  .pipe(gulp.dest('.'));
 ```
 
 ### bundleOptions
