@@ -15,7 +15,6 @@ SystemJS.config({
       'main': 'index.js',
       'format': 'esm'
     },
-    },
     'test-app-repeat-string': {
       'main': 'index.js',
       'format': 'cjs'
