@@ -61,7 +61,7 @@ class Builder {
       version: 3,
       sources: [`src/${pkg}/index.js`],
       names: (type === 'bundle' && pkg === 'foobar') ? ['bar']: [],
-      mappings: mappings[pkg],
+      mappings: mappings[pkg][type],
       file: `${pkg}.js`,
     };
   }

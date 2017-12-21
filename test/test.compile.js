@@ -46,6 +46,7 @@ function compile(options, mockOpts) {
   return promise;
 }
 
+
 describe('compile', function() {
   const defaultOpts = {
     cwd: process.cwd(),
@@ -115,7 +116,7 @@ describe('compile', function() {
     }).catch(() => done());
   });
 
-  it('should be generated when options.sourceMaps on bundle is true', function(done) {
+  it('should generate sourceMap when options.sourceMaps on bundle is true', function(done) {
     compile({
       bundles: [{src: 'a', dst: 'a.js', options: {sourceMaps: true}}]
     }).then((results) => {
@@ -124,7 +125,7 @@ describe('compile', function() {
     }).catch(e => done(e));
   });
 
-  it('should be generated when bundleOptions.sourceMaps is true', function(done) {
+  it('should generated sourceMap when bundleOptions.sourceMaps is true', function(done) {
     compile({
       bundleOptions: {sourceMaps: true},
       bundles: [{src: 'a', dst: 'b'}]
@@ -139,6 +140,20 @@ describe('compile', function() {
       bundles: [{src: 'a', dst: 'b'}]
     }).then((results) => {
       expect(results.files[0].sourceMap).to.be.undefined;
+      done();
+    }).catch(e => done(e));
+  });
+
+  it('should support inline sourcemaps', function(done) {
+    compile({
+      bundles: [{src: 'a', dst: 'a.js', options: {sourceMaps: 'inline'}}]
+    }).then((results) => {
+      const sourceMap = Builder.expected.bundle.a.sourceMap;
+      const b64Map = new Buffer(JSON.stringify(sourceMap)).toString('base64');
+      let source = Builder.expected.bundle.a.source;
+      source += `\n//# sourceMappingURL=data:application/json;base64,${b64Map}`;
+      expect(results.files[0].sourceMap).to.not.exist;
+      expect(results.files[0].contents.toString(), 'file source').to.equal(source);
       done();
     }).catch(e => done(e));
   });
@@ -161,7 +176,7 @@ describe('compile', function() {
       bundleOptions: {
         minify: false
       },
-      bundles: [{src: 'a', dst: 'b', options: {minify: true}}]
+      bundles: [{src: 'a', dst: 'a.js', options: {minify: true}}]
     }).then((results) => {
       expect(results.builder.bundle).to.have.been.calledWith(
         'a', Object.assign({}, defaultOpts, {minify: true}));

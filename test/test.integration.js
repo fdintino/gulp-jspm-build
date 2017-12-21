@@ -1,5 +1,9 @@
 'use strict';
 
+const EventEmitter = require('events');
+
+EventEmitter.defaultMaxListeners = 0;
+
 const fs = require('fs');
 const path = require('path');
 const sinon = require('sinon');

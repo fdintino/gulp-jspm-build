@@ -6,7 +6,6 @@
       "repeat-string": "npm:repeat-string@1.6.1"
     },
     "devDependencies": {
-      "plugin-babel": "npm:systemjs-plugin-babel@^0.0.25"
     }
   }
 }
