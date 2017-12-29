@@ -2,7 +2,7 @@
 
 const chai = require('chai');
 const File = require('vinyl');
-const {applyNormalizedSourceMap} = require('../lib/utils');
+const applyNormalizedSourceMap = require('../lib/utils').applyNormalizedSourceMap;
 
 const expect = chai.expect;
 
